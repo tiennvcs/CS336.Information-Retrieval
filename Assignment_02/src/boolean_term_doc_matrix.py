@@ -1,6 +1,5 @@
 # Usage: 
-#  python boolean_term_doc_matrix.py --data_path ..\data\ --query "'Suarez' AND 'Messi' OR 'Barcelona'" 
-
+# python boolean_term_doc_matrix.py --data_path ..\data\ --query "'Suarez' OR 'Messi' AND NOT 'Barcelona'"
 
 import os
 import numpy as np
@@ -8,7 +7,7 @@ import re
 import argparse
 import time
 from collections import deque
-from utils import OPERATORS, isOperator
+from utils import OPERATORS, pre_processUnaryOperation
 
 
 def load_data_from_directory(path: str):
@@ -79,57 +78,26 @@ def build_term_document_matrix(dictionary, data, file_paths):
     return np.array(term_document_matrix).T, index_documents, index_words
 
 
-def process_query(matrix, index_documents, index_words, query: str):
+def process_query(terms: list, index_documents):
     
-    number_documents = len(index_documents)
-
-    # Tokenizing the input query, the archived result are terms
-    query_words = re.findall(r"'(\w+)'", query)
-    operators = [term for term in query.split() if term in OPERATORS]
-
-    lst_vectors = []
-    # Loop through all words to get its representation vector 
-    for word in query_words:
-        try:
-            representation_vector = matrix[index_words[word], :]
-        except: # If the word is not exsit on the dictionary
-            representation_vector = np.zeros(number_documents, dtype=np.int32)   # Assign the zero vector    
-        
-        lst_vectors.append(representation_vector)
-        print(" \t---> The representation of {:12s} is {}".format(word, representation_vector))
-
-
-
-    i = 0
-    result = lst_vectors[0]
-    for vector in lst_vectors[1:]:
-        if operators[i] == "NOT":
-            # Process unary operator
-        else:
-            # Process binary operators
-            result = OPERATORS[operators[i]](result, vector)
-        i += 1
-
-    # i = 0
-    # previous_operator = None
-    # result = lst_vectors[0]
-    # for operator in operators:
-    #     if operator == "NOT":
-    #         # Process unary operator
-    #         current_result = OPERATORS[]
-    #     else:
-    #         # Process binary operators
-    #         result = OPERATORS[operators[i]](result, vector)
-    #     i += 1
-
+    
+    result = terms[0]
+    
+    for i in range(1, len(terms), 2):
+        result = OPERATORS[terms[i]](result, terms[i+1])
 
     # Retrieval the indices of documents
-    indices = np.where(result)
-    
-    # Display the query result 
-    print("[INFO] Query result ...")
+    indices = np.where(result)[0]
+
+    if len(indices) == 0:
+        print("[INFO] There was no query results !")
+        return None
+
+    #Display the query result 
+    print("[INFO] Matching results from the query ...")
+
     for index in indices:
-        print(" - {}".format(index_documents[i]))
+        print(" ---> {}".format(index_documents[index]))
 
     return indices
 
@@ -145,9 +113,15 @@ def main(args):
     # Build term-document matrix
     matrix, index_documents, index_words = build_term_document_matrix(dictionary=dictionary, data=lst_contents, file_paths=file_paths)
 
-    # Process the query 
-    indices = process_query(matrix=matrix, index_documents=index_documents, index_words=index_words, query=args["query"])
+    # Parse query
+    parsed_words = re.findall(r"\w+", args['query'])
+
+    # Preprocess
+    new_terms = pre_processUnaryOperation(matrix=matrix, index_documents=index_documents, index_words=index_words, terms=parsed_words)
     
+    # Process the query 
+    #indices = process_query(matrix=matrix, index_documents=index_documents, index_words=index_words, query=args["query"])
+    process_query(new_terms, index_documents)
 
 
 if __name__ == "__main__":
