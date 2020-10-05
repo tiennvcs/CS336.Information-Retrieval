@@ -61,7 +61,10 @@ def pre_processUnaryOperation(dictionaries, file_paths, terms):
 				j += 1
 			j -= 1 # j = 6
 			if (j - i + 1) % 2 == 0:
-				vector = dictionaries[terms[j+1]]
+				try:
+					vector = dictionaries[terms[j+1]]
+				except:
+					vector = set()
 			else:
 				try:
 					vector = universalset.difference(dictionaries[terms[j+1]])
