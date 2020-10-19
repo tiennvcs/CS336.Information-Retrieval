@@ -5,10 +5,11 @@ import numpy as np
 
 
 def get_argument():
-	parser = argparse.ArgumentParser(description='TF - IDF method for vector space model.')
-	parser.add_argument('--data_path', '-d', default='../data/', help='The path of all documents.')
-	parser.add_argument('--query', '-q', default='Barca Messi', help='The query question from user.')
-	parser.add_argument('--numbers', '-N', default=5, help='The number of results display.')
+	parser = argparse.ArgumentParser(description='TF - IDF method for vector space model')
+	parser.add_argument('--method', '-method', default='matrix', choices=['inverted', 'matrix'], help='The method representation')
+	parser.add_argument('--data_path', '-d', default='../data/', help='The path of all documents')
+	parser.add_argument('--query', '-q', default='Barca Messi', help='The query question from user')
+	parser.add_argument('--numbers', '-n', default=5, help='The number of display results')
 	return vars(parser.parse_args())
 
 
@@ -32,6 +33,3 @@ def build_dictionary(lst_contents):
 		dictionary.update(content)
 
 	return dictionary
-
-
-
