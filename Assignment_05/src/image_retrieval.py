@@ -42,8 +42,8 @@ def main(args):
 	# Load query image
 	try:
 		qimage = cv2.imread(args['query_path'])
-		cv2.imshow('Query image', qimage)
-		cv2.waitKey(0)
+		#cv2.imshow('Query image', qimage)
+		#cv2.waitKey(0)
 	except:
 		print("!!! Invalid path.")
 		exit(0)

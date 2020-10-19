@@ -72,7 +72,7 @@ def display_results(query_image, path_query, file_paths, model_name, indices, nu
 		plt.axis('off')
 
 	fig.tight_layout()
-	plt.show()
+	#plt.show()
 
 	save_file = os.path.join('../output', os.path.split(path_query)[1].split(".")[0] + '_' + model_name + '.png')
 	fig.savefig(os.path.join(save_file))
