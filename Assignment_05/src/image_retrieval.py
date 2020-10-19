@@ -1,7 +1,7 @@
 # Usage:
 """
 	python image_retrieval.py --data_path ..\data --model VGG16 
-				--path_query ..\queries\ngoctrinh.jpg 
+				--query_path ..\queries\ngoctrinh.jpg 
 """
 
 from utils import load_image_from_directory, load_model, cosin_similarity, display_results
@@ -41,7 +41,7 @@ def main(args):
 
 	# Load query image
 	try:
-		qimage = cv2.imread(args['path_query'])
+		qimage = cv2.imread(args['query_path'])
 		cv2.imshow('Query image', qimage)
 		cv2.waitKey(0)
 	except:
@@ -61,7 +61,7 @@ def main(args):
 	indices = np.argsort(similarities)[::-1]
 
 	# Display results
-	display_results(qimage[0], args['path_query'], file_paths, args['model'], indices, args['number'])
+	display_results(qimage[0], args['query_path'], file_paths, args['model'], indices, args['number'])
 
 
 
@@ -71,7 +71,7 @@ if __name__ == '__main__':
 	parser.add_argument('--model', '-m', default='VGG16', 
 						choices=['VGG16', 'VGG19', 'DenseNet201', 'ResNet50'], 
 						help='The path contain image data')
-	parser.add_argument('--path_query', '-q', default='../queries/ngoctrinh.jpg', help='The path contain image data')
+	parser.add_argument('--query_path', '-q', default='../queries/ngoctrinh.jpg', help='The path contain image data')
 	parser.add_argument('--number', '-n', type=int, default=5, help='The number of image display')
 
 	args = vars(parser.parse_args())
