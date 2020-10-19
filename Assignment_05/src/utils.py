@@ -49,7 +49,7 @@ def cosin_similarity(feature_vectors, query_vector):
 	return np.array(similarities)
 
 
-def display_results(query_image, file_paths, indices, number):
+def display_results(query_image, path_query, file_paths, model_name, indices, number, save=True):
 	
 	rows = 1
 	cols = number + 1
@@ -73,3 +73,7 @@ def display_results(query_image, file_paths, indices, number):
 
 	fig.tight_layout()
 	plt.show()
+
+	save_file = os.path.join('../output', os.path.split(path_query)[1].split(".")[0] + '_' + model_name + '.png')
+	fig.savefig(os.path.join(save_file))
+	print("[INFO] Saved result to {}".format(save_file))

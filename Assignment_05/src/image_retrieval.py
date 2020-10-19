@@ -1,3 +1,9 @@
+# Usage:
+"""
+	python image_retrieval.py --data_path ..\data --model VGG16 
+				--path_query ..\queries\ngoctrinh.jpg 
+"""
+
 from utils import load_image_from_directory, load_model, cosin_similarity, display_results
 import argparse
 import os
@@ -28,7 +34,7 @@ def main(args):
 		file_features = os.path.join('../extracted_features', '{}'.format(args['model']))
 		np.save(file_features, feature_vectors)
 
-	# Test load feature from saving local
+	# Testing load feature from saving local
 	print("[INFO] Loading extracted features from disk ...")
 	with open(os.path.join('../extracted_features', args['model']) + '.npy', 'rb') as f:
 		feature_vectors = np.load(f)
@@ -55,7 +61,7 @@ def main(args):
 	indices = np.argsort(similarities)[::-1]
 
 	# Display results
-	display_results(qimage[0], file_paths, indices, args['number'])
+	display_results(qimage[0], args['path_query'], file_paths, args['model'], indices, args['number'])
 
 
 
@@ -63,10 +69,10 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Image retrieval with Deep feature')
 	parser.add_argument('--data_path', '-d', default='../data', help='The path contain image data')
 	parser.add_argument('--model', '-m', default='VGG16', 
-						choices=['HOG', 'VGG16', 'VGG19', 'DenseNet', 'ResNet'], 
+						choices=['VGG16', 'VGG19', 'DenseNet201', 'ResNet50'], 
 						help='The path contain image data')
 	parser.add_argument('--path_query', '-q', default='../queries/ngoctrinh.jpg', help='The path contain image data')
-	parser.add_argument('--number', '-n', default=5, help='The number of image display')
+	parser.add_argument('--number', '-n', type=int, default=5, help='The number of image display')
 
 	args = vars(parser.parse_args())
 
