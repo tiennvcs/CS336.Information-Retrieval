@@ -1,0 +1,95 @@
+import os
+import cv2
+import numpy as np
+from config import MODELS, IMAGE_SIZE
+import matplotlib.pyplot as plt
+
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = "3"
+
+
+def load_image_from_directory(path):
+	
+	file_paths = [os.path.join(path, file_path) for file_path in os.listdir(path) if file_path.endswith('.jpg')]
+
+	images = list()
+
+	print(len(file_paths))
+
+	for image_path in file_paths:
+		try:
+			image = cv2.imread(image_path)
+			images.append(cv2.resize(image, IMAGE_SIZE, cv2.INTER_AREA))
+		except:
+			print("Continue")
+	images = np.expand_dims(images, axis=0)
+	return images, file_paths
+
+
+def load_model(name:str):
+
+	try:
+		model = MODELS[name]
+	except:
+		print("The invalid model")
+		exit(0)
+
+	return model
+
+
+def cosin_similarity(feature_vectors, query_vector):
+
+	# calculate the magnitude of query vector
+	len_query_vector = np.linalg.norm(query_vector)
+
+	# Calculate the similarity between feature vectors and query vector
+	similarities = []
+
+	for feature_vector in feature_vectors:
+		# Calculate the similarity of two vector
+		similar = np.dot(feature_vector, query_vector)/np.linalg.norm(feature_vector)/len_query_vector
+		similarities.append(similar)
+
+	return np.array(similarities)
+
+
+def display_results(query_image, path_query, file_paths, model_name, indices, number, save=True):
+	
+	rows = 1
+	cols = number + 1
+
+	axes = []
+	fig = plt.figure(figsize=(10, 6))
+
+	# Display the query image
+	axes.append(fig.add_subplot(rows, cols, 1))
+	axes[-1].set_title("Query image", fontsize=8)
+	plt.axis('off')
+	plt.imshow(query_image)
+
+	for i in range(1, number+1):
+		path = file_paths[indices[i-1]]
+		image = cv2.imread(path)
+		axes.append(fig.add_subplot(rows, cols, i+1))
+		axes[-1].set_title(r"Top {} - {}".format(i, os.path.split(path)[1]), fontsize=8)
+		plt.imshow(image)
+		plt.axis('off')
+
+	fig.tight_layout()
+	#plt.show()
+
+	save_file = os.path.join('../output', os.path.split(path_query)[1].split(".")[0] + '_' + model_name + '.png')
+	fig.savefig(os.path.join(save_file))
+	print("[INFO] Saved result to {}".format(save_file))
+
+
+def calculate_AP(y_true, y_predict, total):
+	
+	compare_result = np.zeros(len(y_true))
+
+	for i in range(len(y_true)):
+		if y_true[i] == y_predict[i]:
+			compare_result[i] = 1
+
+	print(compare_result)
+	input()
