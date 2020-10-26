@@ -52,6 +52,35 @@ def cosin_similarity(feature_vectors, query_vector):
 
 	return np.array(similarities)
 
+def l2_norm(feature_vectors, query_vector):
+
+	# Calculate the similarity between feature vectors and query vector
+	similarities = []
+
+	for feature_vector in feature_vectors:
+		# Calculate the similarity of two vector
+		similar = np.sqrt(np.sum((feature_vectors-query_vector)**2))
+		similarities.append(similar)
+
+	return np.array(similarities)
+
+
+def inner_product(feature_vectors, query_vector):
+
+
+	# calculate the magnitude of query vector
+	len_query_vector = np.linalg.norm(query_vector)
+
+	# Calculate the similarity between feature vectors and query vector
+	similarities = []
+
+	for feature_vector in feature_vectors:
+		# Calculate the similarity of two vector
+		similar = np.sum(feature_vectors*query_vector)
+		similarities.append(similar)
+
+	return np.array(similarities)
+
 
 def display_results(query_image, path_query, file_paths, model_name, indices, number, save=True):
 	
@@ -83,13 +112,12 @@ def display_results(query_image, path_query, file_paths, model_name, indices, nu
 	print("[INFO] Saved result to {}".format(save_file))
 
 
-def calculate_AP(y_true, y_predict, total):
+def calculate_AP(compared_result, total):
+	ap = 0
+	number = 0
 	
-	compare_result = np.zeros(len(y_true))
-
-	for i in range(len(y_true)):
-		if y_true[i] == y_predict[i]:
-			compare_result[i] = 1
-
-	print(compare_result)
-	input()
+	for i, value in enumerate(compared_result):
+		if value == 1:
+			ap += (number+1)/(i+1)
+			number += 1
+	return ap / total

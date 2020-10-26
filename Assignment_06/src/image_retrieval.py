@@ -4,12 +4,19 @@
 				--query_path ..\queries\ngoctrinh.jpg 
 """
 
-from utils import load_image_from_directory, load_model, cosin_similarity, display_results, calculate_AP
+from utils import load_image_from_directory, load_model, cosin_similarity, display_results, calculate_AP, l2_norm, inner_product
 import argparse
 import os
 import numpy as np
 import cv2
 from config import IMAGE_SIZE
+
+
+MEASURE = {
+	'cosin': cosin_similarity,
+	'l2': l2_norm,
+	'inner_product': inner_product,
+}
 
 
 def main(args):
@@ -54,8 +61,8 @@ def main(args):
 
 
 	# Get the similarities between feature vectors and query
-	print("[INFO] Calculating the similarities between feature vectors and query vector ...")
-	similarities = cosin_similarity(feature_vectors, qvector)
+	print("[INFO] Calculating the similarities between feature vectors and query vector using {} measure...".format(args['measure']))
+	similarities = MEASURE[args['measure']](feature_vectors, qvector)
 
 	# Ranking base on similarities
 	indices = np.argsort(similarities)[::-1]
@@ -66,23 +73,31 @@ def main(args):
 	# Load grouth truth
 	ground_truth_path = os.path.join(args['data_path'], 'ground_truth')
 	ground_truth_file = os.path.join(ground_truth_path, os.path.split(args['query_path'])[1].split(".")[0]+'.txt')
+	
 	y_true = []
 	with open(ground_truth_file, 'r') as f:
 		for line in f.readlines():
 			y_true.append(line.rstrip())
 
-	# y_predict
-	print(indices)
-	input()
+	# print(y_true)
+	# input()
+
 	y_predict = []
 	for i in range(len(indices[:args['number']])):
-		y_predict.append(file_paths[indices[i]])
+		y_predict.append(os.path.split(file_paths[indices[i]])[1])
 
-	print(y_predict)
-	input()
+	# Calculate the Relevant or Irrelevant
+	compared_result = []
+	for i in range(len(y_predict)):
+		if y_predict[i] in y_true:
+			compared_result.append(1)
+		else:
+			compared_result.append(0)
+
 	# calculate the AP
-	ap = calculate_AP(y_true, y_predict, total)
+	ap = calculate_AP(compared_result, total=len(y_true))
 
+	print("The average precision is {}".format(ap))
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Image retrieval with Deep feature')
@@ -92,7 +107,8 @@ if __name__ == '__main__':
 						help='The path contain image data')
 	parser.add_argument('--query_path', '-q', default='../queries/ngoctrinh.jpg', help='The path contain image data')
 	parser.add_argument('--number', '-n', type=int, default=5, help='The number of image display')
-
+	parser.add_argument('--measure', type=str, choices=['cosin', 'l2', 'inner_product'], default='cosin',
+						help='The way measure the similarity between two feature vectors.')
 	args = vars(parser.parse_args())
 
 	main(args)
