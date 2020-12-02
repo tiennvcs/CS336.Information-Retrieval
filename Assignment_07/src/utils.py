@@ -4,7 +4,6 @@ import numpy as np
 from nltk.tokenize import regexp_tokenize 
 
 
-
 def load_data_from_directory(path):
     
     X = []
@@ -19,18 +18,18 @@ def load_data_from_directory(path):
         basedir = os.path.join(path, label)
         doc_files = os.listdir(basedir)
         file_paths += [os.path.join(basedir, doc_file) for doc_file in doc_files]
-        for doc_file in doc_files[:10]:
+        for doc_file in doc_files[:]:
             with open(os.path.join(basedir, doc_file), 'r') as f:
                 content = f.read()
             words = [word.lower() for word in set(regexp_tokenize(content, "[\w']+"))]
             X.append(words)
 
-        y += [i]*len(doc_files[:10])
+        y += [i]*len(doc_files[:])
 
     return np.array(X), np.array(y), LABEL2CATEGORY, file_paths
 
 
-def build_dictionary(docs, dict_size):
+def build_dictionary(docs, dict_size, save=True):
 
     word_lst = list()
     vocabulary = list()
@@ -40,6 +39,11 @@ def build_dictionary(docs, dict_size):
             word_lst.append(word)
             if vocabulary.count(word) == 0:
                 vocabulary.append(word)
+    
+    if save:
+        saving_path = os.path.join('vocab', str(dict_size)+'pl')
+        with open(saving_path, 'wb') as f:
+            pickle.dump(set(np.random.choice(vocabulary, dict_size)), f)
     return set(np.random.choice(vocabulary, dict_size))
 
 
