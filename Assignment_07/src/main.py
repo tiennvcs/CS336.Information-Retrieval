@@ -58,11 +58,12 @@ if __name__ == '__main__':
                         choices=['knn', 'bayes'],
                         help='The method using classification.')
     parser.add_argument('--train_size', default=1000, type=int,
-                        choices=[100, 1000, 3000, 5000, 7000, 9000, 11000, 13000, 15000],
+                        #choices=[100, 1000, 3000, 5000, 7000, 9000, 11000, 13000, 15000],
                         help='The training size.')
-    parser.add_argument('--test_size', default=5000, choices=[100, 5000], type=int,
+    parser.add_argument('--test_size', default=5000, type=int,
+                        #choices=[100, 5000],
                         help='The test size.')
-    parser.add_argument('--dict_size', default=2000, type=int,
+    parser.add_argument('--vocab_size', default=2000, type=int,
                         help='The dictionary size.')
     args = vars(parser.parse_args())
 
