@@ -19,13 +19,13 @@ def load_data_from_directory(path):
         basedir = os.path.join(path, label)
         doc_files = os.listdir(basedir)
         file_paths += [os.path.join(basedir, doc_file) for doc_file in doc_files]
-        for doc_file in doc_files[:10]:
-            with open(os.path.join(basedir, doc_file), 'r') as f:
+        for doc_file in doc_files[:]:
+            with open(os.path.join(basedir, doc_file), 'r', encoding='utf8', errors='ignore') as f:
                 content = f.read()
             words = [word.lower() for word in set(regexp_tokenize(content, "[\w']+"))]
             X.append(words)
 
-        y += [i]*len(doc_files[:10])
+        y += [i]*len(doc_files[:])
 
     return np.array(X), np.array(y), LABEL2CATEGORY, file_paths
 
@@ -77,10 +77,9 @@ def matrix_term_document(args):
 
 	# Bước 2: Build dictionary
 	print("[Step 2] Build dictionary from word documents ...")
-	if not os.path.exists(os.path.join('vocab', str(args['vocab_size']))):
-		print(args['vocab_size'])
+	if not os.path.exists(os.path.join('vocab', str(args['vocab_size'])+'.pl')):
 		vocab = build_dictionary(lst_contents, vocab_size=args['vocab_size'])
-	with open(os.path.join('vocab', str(args['vocab_size'])), 'rb') as f:
+	with open(os.path.join('vocab', str(args['vocab_size'])+'.pl'), 'rb') as f:
 		vocab = pickle.load(f)
 
 	# Bước 3: Calculate the TF weights for each document.
